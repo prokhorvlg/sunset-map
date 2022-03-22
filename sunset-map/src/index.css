@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: #666;
+
+  position: relative;
+}
+
+#sun {
+  stroke: #666;
+  fill: #666;
+}
+
+.orbit {
+  stroke: #ccc;
+  fill: transparent;
+}
+
+.planet {
+  stroke: #666;
+  fill: #fff;
+}
+
+.moon {
+  stroke: #ccc;
+  fill: #fff;
+}
