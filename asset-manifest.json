@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/sunset-map/static/css/main.57771d92.css",
+    "main.js": "/sunset-map/static/js/main.af24e23e.js",
+    "static/js/787.4bb34ca3.chunk.js": "/sunset-map/static/js/787.4bb34ca3.chunk.js",
+    "index.html": "/sunset-map/index.html",
+    "main.57771d92.css.map": "/sunset-map/static/css/main.57771d92.css.map",
+    "main.af24e23e.js.map": "/sunset-map/static/js/main.af24e23e.js.map",
+    "787.4bb34ca3.chunk.js.map": "/sunset-map/static/js/787.4bb34ca3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.57771d92.css",
+    "static/js/main.af24e23e.js"
+  ]
+}
