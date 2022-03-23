@@ -1,6 +1,7 @@
 import React from "react";
 import * as d3 from "d3";
-//import { zoom } from "https://cdn.skypack.dev/d3-zoom@3";
+import { DISTANCE_FACTOR, generateWorlds } from "./WorldGeneration";
+import { hashCode } from "./WorldGenerationHelpers";
 
 const enum ObjectType {
     Sun,
@@ -15,60 +16,68 @@ const data = {
     type: ObjectType.Sun,
     distance: 0,
     radius: 35,
-    worlds: [
+    color: "#ffca2a",
+    children: [
         {
             name: "Mercury",
             type: ObjectType.Planet,
+            color: "#f47f00",
             distance: 125,
             radius: 8,
             speed: -1.60,
             startingAngle: 35,
-            moons: []
+            children: []
         },
         {
             name: "Venus",
             type: ObjectType.Planet,
+            color: "#b8ff30",
             distance: 165,
             radius: 15,
             speed: -1.17,
             startingAngle: 195,
-            moons: [
+            children: [
                 {
                     name: "Klios",
                     type: ObjectType.Moon,
+                    color: "#152bf7",
                     distance: 66,
                     radius: 5,
                     speed: -3.2,
-                    startingAngle: 320
+                    startingAngle: 320,
+                    children: []
                 }
             ]
         },
         {
             name: "Earth",
             type: ObjectType.Planet,
+            color: "#0dcfff",
             distance: 205,
             radius: 14,
             speed: -1.17,
             startingAngle: 280,
-            moons: [
+            children: [
                 {
                     name: "Luna",
                     type: ObjectType.Moon,
                     distance: 66,
                     radius: 5,
                     speed: -3.2,
-                    startingAngle: 119
+                    startingAngle: 119,
+                    children: []
                 }
             ]
         },
         {
             name: "Mars",
             type: ObjectType.Planet,
+            color: "#ff4817",
             distance: 245,
             radius: 11,
             speed: -1.17,
             startingAngle: 64,
-            moons: []
+            children: []
         },
         {
             name: "Asteroid Belt",
@@ -77,31 +86,36 @@ const data = {
             radius: 11,
             speed: -1.17,
             startingAngle: 44,
-            moons: []
+            children: []
         },
         {
             name: "Jupiter",
             type: ObjectType.Planet,
+            color: "#ffe4b6",
             distance: 355,
             radius: 29,
             speed: -1.17,
             startingAngle: 145,
-            moons: [
+            children: [
                 {
                     name: "Io",
                     type: ObjectType.Moon,
+                    color: "#ff8b19",
                     distance: 86,
                     radius: 4,
                     speed: -3.2,
-                    startingAngle: 22
+                    startingAngle: 22,
+                    children: []
                 },
                 {
                     name: "Europa",
                     type: ObjectType.Moon,
+                    color: "#1cffd7",
                     distance: 115,
                     radius: 5,
                     speed: -3.2,
-                    startingAngle: 259
+                    startingAngle: 259,
+                    children: []
                 },
                 {
                     name: "Ganymede",
@@ -109,7 +123,8 @@ const data = {
                     distance: 145,
                     radius: 6,
                     speed: -3.2,
-                    startingAngle: 155
+                    startingAngle: 155,
+                    children: []
                 },
                 {
                     name: "Callisto",
@@ -117,45 +132,51 @@ const data = {
                     distance: 175,
                     radius: 5,
                     speed: -3.2,
-                    startingAngle: 43
+                    startingAngle: 43,
+                    children: []
                 }
             ]
         },
         {
             name: "Saturn",
             type: ObjectType.Planet,
+            color: "#ffc698",
             distance: 435,
             radius: 26,
             speed: -1.17,
             startingAngle: 310,
-            moons: [
+            children: [
                 {
                     name: "Titan",
                     type: ObjectType.Moon,
+                    color: "#f78a15",
                     distance: 105,
                     radius: 5,
                     speed: -3.2,
-                    startingAngle: 73
+                    startingAngle: 73,
+                    children: []
                 }
             ]
         },
         {
             name: "Uranus",
             type: ObjectType.Planet,
+            color: "#38f3ff",
             distance: 545,
             radius: 19,
             speed: -1.17,
             startingAngle: 340,
-            moons: []
+            children: []
         },
         {
             name: "Neptune",
             type: ObjectType.Planet,
+            color: "#087bdd",
             distance: 655,
             radius: 18,
             speed: -1.17,
             startingAngle: 224,
-            moons: []
+            children: []
         },
         {
             name: "Pluto",
@@ -164,14 +185,15 @@ const data = {
             radius: 5,
             speed: -1.17,
             startingAngle: 11,
-            moons: [
+            children: [
                 {
                     name: "Charon",
                     type: ObjectType.Moon,
-                    distance: 45,
+                    distance: 65,
                     radius: 3,
                     speed: -3.2,
-                    startingAngle: 165
+                    startingAngle: 165,
+                    children: []
                 }
             ]
         },
@@ -182,72 +204,33 @@ const data = {
             radius: 0,
             speed: -1.17,
             startingAngle: 0,
-            moons: []
+            children: []
         },
         {
             name: "Nibiru",
             type: ObjectType.Planet,
+            color: "#ff1bc1",
             distance: 1205,
             radius: 36,
             speed: -1.17,
             startingAngle: 32,
-            moons: [
+            children: [
                 {
                     name: "Marduk",
                     type: ObjectType.Moon,
+                    color: "#b003c5",
                     distance: 135,
                     radius: 4,
                     speed: -3.2,
-                    startingAngle: 73
+                    startingAngle: 73,
+                    children: []
                 }
             ]
         },
     ]
 }
 
-const DISTANCE_FACTOR = 1.2;
-const SCALE_FACTOR = 2;
-
-const findNewPoint = (x, y, angle, distance) => {
-    const result = {} as any;
-
-    result.x = Math.round(Math.cos(angle * Math.PI / 180) * distance + x);
-    result.y = Math.round(Math.sin(angle * Math.PI / 180) * distance + y);
-
-    return result;
-}
-
-const generateWorld = (worldGroup, worldData, coordsX = 0, coordsY = 0, parentX = 0, parentY = 0) => {
-    const worldOrbitGroup = worldGroup.append("g"); // Positioned at center (orbit line)
-    const worldItemGroup = worldGroup.append("g"); // Positioned at coordinates (the rest)
-
-    // Generate ORBIT PATH of PLANET
-    worldOrbitGroup.append("circle")
-        .attr("cx", parentX)
-        .attr("cy", parentY)
-        .attr("r", worldData.distance * DISTANCE_FACTOR)
-        .attr("stroke-linecap", "round")
-        .attr("stroke-dasharray", "5,3")
-        .attr("class", "orbit");
-
-    // Generate NAME of PLANET
-    worldItemGroup.append("text")
-        .attr("x", 0)
-        .attr("y", -worldData.radius * SCALE_FACTOR - 15)
-        .attr("dy", ".35em")
-        .attr("text-anchor", "middle")
-        .text(worldData.name);
-
-    // Generate PLANET
-    worldItemGroup.append("circle")
-        .attr("r", worldData.radius * SCALE_FACTOR)
-        .attr("class", "planet");
-
-    // Send item group to coordinates
-    worldItemGroup.attr("transform", "translate(" + coordsX + "," + coordsY + ")");
-}
-
-const generateAsteroidBelt = (worldGroup, worldData, coordsX = 0, coordsY = 0, parentX = 0, parentY = 0) => {
+/*const generateAsteroidBelt = (worldGroup, worldData, coordsX = 0, coordsY = 0, parentX = 0, parentY = 0) => {
     const worldOrbitGroup = worldGroup.append("g"); // Positioned at center (orbit line)
 
     // Generate ORBIT PATH of BELT
@@ -255,11 +238,12 @@ const generateAsteroidBelt = (worldGroup, worldData, coordsX = 0, coordsY = 0, p
         .attr("cx", parentX)
         .attr("cy", parentY)
         .attr("r", worldData.distance * DISTANCE_FACTOR)
-        .attr("stroke-linecap", "round")
-        .attr("stroke-dasharray", "0,4")
-        .attr("stroke-width", "2")
-        .attr("class", "orbit");
-}
+        //.attr("stroke-linecap", "round")
+        //.attr("stroke-dasharray", "0,4")
+        .attr("stroke-width", "58")
+        .attr("class", "orbit-asteroid-belt");
+}*/
+
 
 const handleMap = (element) => {
     const w = window.innerWidth - 20;
@@ -275,45 +259,8 @@ const handleMap = (element) => {
     // GENERATE COSMIC OBJECTS
     // Generate container for all cosmic objects
     const container = svg.append("g")
-        .attr("id", "orbit_container")
-        .attr("transform", "translate(" + 0 + "," + 0 + ")");
-
-    // Generate SUN
-    const sunCircle = container.append("circle")
-       .attr("r", data.radius * SCALE_FACTOR)
-       .attr("cx", 0)
-       .attr("cy", 0)
-       .attr("id", "sun");
-
-    // Generate EACH PLANET
-    // Generate planet cluster
-    const planetGroups = container.selectAll("g.planet")
-        .data(data.worlds).enter().append("g")
-        .attr("class", "planet_cluster")
-        
-    planetGroups.each(function(world, i) {
-        const planetGroup = d3.select(this);
-        const planetPoint = findNewPoint(0, 0, world.startingAngle, world.distance * DISTANCE_FACTOR);
-
-        if (world.type === ObjectType.AsteroidBelt) {
-            generateAsteroidBelt(d3.select(this), world, planetPoint.x, planetPoint.y)
-        } else {
-            generateWorld(d3.select(this), world, planetPoint.x, planetPoint.y);
-
-            // Generate each MOON for this PLANET
-            const moonGroups = planetGroup.append("g").selectAll("g.moon").data(world.moons).enter()
-                .append("g")
-                .attr("class", "moon_cluster")
-            
-            moonGroups.each(function(moon, i) {
-                const moonPoint = findNewPoint(planetPoint.x, planetPoint.y, moon.startingAngle, moon.distance * DISTANCE_FACTOR);
-                generateWorld(d3.select(this), moon, moonPoint.x, moonPoint.y, planetPoint.x, planetPoint.y);
-            });
-        }
-        
-
-        
-    })
+        .attr("id", "orbit_container");
+    const { itemGroups, objectInfo } = generateWorlds(container, data);
 
     // Rotation about orbit
     /*setInterval(function() {
@@ -325,13 +272,12 @@ const handleMap = (element) => {
     }, 40);*/
 
     // Enable zoom component
-    const panLimitX = 1500;
-    const panLimitY = panLimitX * 0.7;
+    const panLimitX = 1300 * DISTANCE_FACTOR;
+    const panLimitY = panLimitX * 0.65;
     const zoom = d3.zoom()
         .extent([[0, 0], [w, h]])
-        .scaleExtent([1, 12])
+        .scaleExtent([1, 10])
         .translateExtent([[-panLimitX, -panLimitY], [panLimitX, panLimitY]])
-        //.extent([-panLimit, -panLimit], [panLimit, panLimit])
         .on("zoom", zoomed)
     svg.call(zoom);
 
@@ -341,13 +287,22 @@ const handleMap = (element) => {
         .scale(1);
     svg.call(zoom.transform, initialTransform);
     
-    function zoomed({transform}) {
+    function zoomed(event) {
+        const transform = event.transform
         container.attr("transform", transform);
+        const zoom = 1 + (transform.k * 0.3)
+        const itemScale = ( 1 / zoom ) * 1.3
+        itemGroups.forEach(function(itemGroup) {
+            const name = itemGroup.attr("data-name")
+            const storeEntry = objectInfo[name]
+            itemGroup.attr("transform", "translate(" + ( storeEntry?.x || 0) + ", " + (storeEntry?.y || 0) + ") scale(" + itemScale + ")")
+        });
+            
     }
 }
 
 const SystemMap = () => {
-    return <svg ref={handleMap}></svg>
+    return <svg xmlns="http://www.w3.org/2000/svg" ref={handleMap}></svg>
 };
  
 export default SystemMap;
