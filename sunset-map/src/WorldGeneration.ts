@@ -27,7 +27,9 @@ export const generateWorlds = (container, data) => {
     const worldsContainer = container.append("g").attr("class", "worlds-container");
     generateContent(worldsInOrder, worldsContainer);
 
-    return {itemGroups, objectInfo}
+    //generateCrafts(worldsInOrder, worldsContainer)
+
+    return { itemGroups, objectInfo }
 }
 
 const generateInfo = (
@@ -46,8 +48,8 @@ const generateInfo = (
 
         // Save your point information.
         objectInfo[object.name] = {
-            x: objectPoint.x,
-            y: objectPoint.y,
+            x: objectPoint.x || 0,
+            y: objectPoint.y || 0,
             firstMoon: object.children[0]?.name || '',
             lastMoonDistance: object.children[object.children.length - 1]?.distance || '',
             color: objectColor
@@ -112,6 +114,41 @@ const generateContent = (
             .attr("stroke-width", "2")
             .attr("fill", info.color)
             .attr("class", "planet");
+
+        if (object.crafts && object.crafts.length) {
+            object.crafts.forEach((craft) => {
+                const craftPoint = findNewPoint(0, 0, craft.startingAngle, craft.distance * DISTANCE_FACTOR);
+                const craftItemGroup = worldItemGroup.append("g")
+
+                /*craftItemGroup.append("text")
+                    .attr("x", 0)
+                    .attr("y", -1 * SCALE_FACTOR - 15)
+                    .attr("dy", ".25em")
+                    .attr("text-anchor", "middle")
+                    .attr("class", "craft-name")
+                    .attr("fill", "white")
+                    .text(craft.name);*/
+
+                craftItemGroup.append("text")
+                    .attr("x", 10)
+                    .attr("y", -2)
+                    .attr("dy", ".25em")
+                    .attr("text-anchor", "left")
+                    .attr("dominant-baseline", "middle")
+                    .attr("class", "craft-name")
+                    .attr("fill", "white")
+                    .text(craft.name);
+
+                craftItemGroup.append("circle")
+                    .attr("cx", 0)
+                    .attr("cy", 0)
+                    .attr("r", 1 * SCALE_FACTOR)
+                    .attr("fill", "white")
+                    .attr("class", "craft");
+
+                craftItemGroup.attr("transform", "translate(" + (craftPoint.x || 0) + "," + (craftPoint.y || 0) + ")");
+            })
+        }
 
         // Send item group to coordinates
         worldItemGroup.attr("transform", "translate(" + (info.x || 0) + "," + (info.y || 0) + ")");

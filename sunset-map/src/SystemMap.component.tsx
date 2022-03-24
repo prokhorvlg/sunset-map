@@ -17,6 +17,14 @@ const data = {
     distance: 0,
     radius: 35,
     color: "#ffca2a",
+    crafts: [
+        {
+            name: "Interbeacon statite",
+            distance: 75,
+            startingAngle: 270,
+            alignment: "right"
+        }
+    ],
     children: [
         {
             name: "Mercury",
@@ -26,6 +34,14 @@ const data = {
             radius: 8,
             speed: -1.60,
             startingAngle: 35,
+            crafts: [
+                {
+                    name: "Odyssey United Orbital",
+                    distance: 22,
+                    startingAngle: 25,
+                    alignment: "right"
+                }
+            ],
             children: []
         },
         {
@@ -201,7 +217,7 @@ const data = {
             name: "Kuiper Belt",
             type: ObjectType.AsteroidBelt,
             distance: 955,
-            radius: 0,
+            radius: 5,
             speed: -1.17,
             startingAngle: 0,
             children: []
@@ -293,9 +309,11 @@ const handleMap = (element) => {
         const zoom = 1 + (transform.k * 0.3)
         const itemScale = ( 1 / zoom ) * 1.3
         itemGroups.forEach(function(itemGroup) {
-            const name = itemGroup.attr("data-name")
+            //console.log(itemGroup)
+            const name = itemGroup?.attr("data-name")
             const storeEntry = objectInfo[name]
             itemGroup.attr("transform", "translate(" + ( storeEntry?.x || 0) + ", " + (storeEntry?.y || 0) + ") scale(" + itemScale + ")")
+ 
         });
             
     }
